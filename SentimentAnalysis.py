@@ -6,49 +6,44 @@ from sentence_transform.creat_vocab_word2vec import creat_vocab_word2vec
 from models.sklearn_supervised import sklearn_supervised
 from models import sklearn_config
 import jieba
+from sklearn.externals import joblib
+from gensim.models import word2vec
 
 jieba.setLogLevel('WARN')
 
 
 class SentimentAnalysis():
-    def __init__(self,
-                 vocab_exist=False,
-                 vocab_save=True,
-                 vocab_path=os.getcwd() + '/sentence_transform/vocab_word2vec.model',
-                 classify_exist=False,
-                 classify_save=True,
-                 classify_path=os.getcwd() + '/sentence_transform/classify.model'):
-        self.vocab_exist = vocab_exist
-        self.vocab_save = vocab_save
-        self.vocab_path = vocab_path
-        self.classify_exist = classify_exist
-        self.classify_save = classify_save
-        self.classify_path = classify_path
+    def __init__(self, model_name='SVM'):
+        self.model_name = model_name
 
     # def creat_label(self, texts):
     #     results_dataframe = bat.creat_label(texts)
     #     return results_dataframe
 
-    def get_vocab(self,
-                  texts=None,
-                  sg=0,
-                  size=5,
-                  window=5,
-                  min_count=1):
+    def creat_vocab(self,
+                    texts=None,
+                    sg=0,
+                    size=5,
+                    window=5,
+                    min_count=1,
+                    vocab_savepath=os.getcwd() + '/vocab_word2vec.model'):
         # 构建词向量词库
         self.vocab_word2vec = creat_vocab_word2vec(texts=texts,
                                                    sg=sg,
-                                                   vocab_exist=self.vocab_exist,
-                                                   vocab_save=self.vocab_save,
-                                                   vocab_path=self.vocab_path,
+                                                   vocab_savepath=vocab_savepath,
                                                    size=size,
                                                    window=window,
                                                    min_count=min_count)
+
+    def load_vocab_word2vec(self,
+                            vocab_loadpath=os.getcwd() + '/vocab_word2vec.model'):
+        self.vocab_word2vec = word2vec.Word2Vec.load(vocab_loadpath)
 
     def train(self,
               texts=None,
               label=None,
               model_name='SVM',
+              model_savepath=os.getcwd() + '/classify.model',
               **sklearn_param):
         self.model_name = model_name
         # 文本转词向量
@@ -71,14 +66,16 @@ class SentimentAnalysis():
         # 返回训练模型
         self.model = sklearn_supervised(data=data,
                                         label=label,
-                                        model_exist=self.classify_exist,
-                                        model_path=self.classify_path,
-                                        savemodel=self.classify_save,
+                                        model_savepath=model_savepath,
                                         model_name=model_name,
                                         **sklearn_param)
 
-    def fit(self,
-            texts=None):
+    def load_sklearn_model(self,
+                           model_loadpath=os.getcwd() + '/classify.model'):
+        self.model = joblib.load(model_loadpath)
+
+    def predict(self,
+                texts=None):
         # 文本转词向量
         vocab_word2vec = self.vocab_word2vec
         if self.model_name in ['SVM', 'KNN', 'Logistic']:
@@ -105,24 +102,29 @@ if __name__ == '__main__':
                  '涛哥非常讨厌吃苹果']
     test_label = ['正面', '负面', '正面', '负面']
     # 创建模型
-    model = SentimentAnalysis(vocab_exist=False,
-                              vocab_save=True,
-                              vocab_path=os.getcwd() + '/vocab_word2vec.model',
-                              classify_exist=False,
-                              classify_save=True,
-                              classify_path=os.getcwd() + '/classify.model')
-    # 获取词向量模型
-    model.get_vocab(texts=train_data,
-                    sg=0,
-                    size=5,
-                    window=5,
-                    min_count=1)
+    model = SentimentAnalysis(model_name='SVM')
+    # 建模获取词向量词包
+    model.creat_vocab(texts=train_data,
+                      sg=0,
+                      size=5,
+                      window=5,
+                      min_count=1,
+                      vocab_savepath=os.getcwd() + '/vocab_word2vec.model')
+
+    # 导入词向量词包
+    # model.load_vocab_word2vec(vocab_loadpath=os.getcwd() + '/vocab_word2vec.model')
+
     # 进行机器学习
     model.train(texts=train_data,
                 label=train_label,
-                model_name='SVM')
+                model_name='SVM',
+                model_savepath=os.getcwd() + '/classify.model')
+
+    # 导入机器学习模型
+    # model.load_sklearn_model(model_loadpath=os.getcwd() + '/classify.model')
+
     # 进行预测
-    result = model.fit(texts=test_data)
+    result = model.predict(texts=test_data)
     # 计算准确率
     print('score:', np.sum(result == np.array(test_label)) / len(result))
     result = pd.DataFrame({'data': test_data,

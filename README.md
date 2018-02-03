@@ -44,24 +44,31 @@ test_data = ['涛哥喜欢吃苹果',
 test_label = ['正面', '负面', '正面', '负面']
 
 # 创建模型
-model = SentimentAnalysis(vocab_exist=False,
-                          vocab_save=True,
-                          vocab_path=os.getcwd() + '/vocab_word2vec.model',
-                          classify_exist=False,
-                          classify_save=True,
-                          classify_path=os.getcwd() + '/classify.model')
-# 获取词向量模型
-model.get_vocab(texts=train_data,
-                sg=0,
-                size=5,
-                window=5,
-                min_count=1)
-# 进行机器学习				
+model = SentimentAnalysis(model_name='SVM')
+# 建模获取词向量词包
+model.creat_vocab(texts=train_data,
+                  sg=0,
+                  size=5,
+                  window=5,
+                  min_count=1,
+                  vocab_savepath=os.getcwd() + '/vocab_word2vec.model')
+
+# 导入词向量词包
+# model.load_vocab_word2vec(vocab_loadpath=os.getcwd() + '/vocab_word2vec.model')
+
+# 进行机器学习
 model.train(texts=train_data,
             label=train_label,
-            model_name='SVM')
+            model_name='SVM',
+            model_savepath=os.getcwd() + '/classify.model')
+
+# 导入机器学习模型
+# model.load_sklearn_model(model_loadpath=os.getcwd() + '/classify.model')
+
 # 进行预测
-result = model.fit(texts=test_data)
+result = model.predict(texts=test_data)
+# 计算准确率
 print('score:', np.sum(result == np.array(test_label)) / len(result))
+
 
 ```
