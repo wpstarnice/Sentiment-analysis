@@ -2,16 +2,13 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.externals import joblib
-import pandas as pd
-import numpy as np
-from sentence_transform.sentence_2_sparse import sentence_2_sparse
-from sentence_transform.sentence_2_vec import sentence_2_vec
+import os
 
 
 def sklearn_supervised(data=None,
                        label=None,
                        model_exist=False,
-                       model_path=None,
+                       model_path=os.getcwd() + '/sentence_transform/classify.model',
                        model_name='SVM',
                        savemodel=True,
                        **sklearn_param):
@@ -30,14 +27,13 @@ def sklearn_supervised(data=None,
         model_name = model_name
         if model_name == 'KNN':
             # 调用KNN,近邻=5
-            model = KNeighborsClassifier(n_neighbors=min(len(label), sklearn_param['n_neighbors']))
+            model = KNeighborsClassifier(**sklearn_param)
         elif model_name == 'SVM':
             # 核函数为linear,惩罚系数为1.0
-            model = SVC(kernel=sklearn_param['kernel'],
-                        C=sklearn_param['C'])
+            model = SVC(**sklearn_param)
             model.fit(data, label)
         elif model_name == 'Logistic':
-            model = LogisticRegression(solver='liblinear', C=1.0)  # 核函数为线性,惩罚系数为1
+            model = LogisticRegression(**sklearn_param)  # 核函数为线性,惩罚系数为1
             model.fit(data, label)
 
         if savemodel == True:
@@ -47,22 +43,3 @@ def sklearn_supervised(data=None,
     return model
 
 
-if __name__ == '__main__':
-    print('example:English')
-    dataset = [['国王喜欢吃苹果',
-                '国王非常喜欢吃苹果',
-                '国王讨厌吃苹果',
-                '国王非常讨厌吃苹果'],
-               ['正面', '正面', '负面', '负面']]
-    print('train data\n',
-          pd.DataFrame({'data': dataset[0],
-                        'label': dataset[1]},
-                       columns=['data', 'label']))
-
-    model = sklearn_supervised(data=dataset[0],
-                               label=dataset[1],
-                               model_exist=False,
-                               model_path=None,
-                               model_name='SVM',
-                               savemodel=True)
-    print('model:', model)

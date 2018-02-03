@@ -3,4 +3,5 @@ __all__ = ['keras_log_plot',
            'neural_bulit',
            'neural_Conv1D',
            'neural_LSTM',
-           'sklearn_supervised',]
+           'sklearn_supervised',
+           'sklearn_config']
