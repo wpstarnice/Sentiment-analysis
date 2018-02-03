@@ -90,36 +90,40 @@ class SentimentAnalysis():
 
 
 if __name__ == '__main__':
-    train_dataset = [['国王喜欢吃苹果',
-                      '国王非常喜欢吃苹果',
-                      '国王讨厌吃苹果',
-                      '国王非常讨厌吃苹果'],
-                     ['正面', '正面', '负面', '负面']]
+    train_data = ['国王喜欢吃苹果',
+                  '国王非常喜欢吃苹果',
+                  '国王讨厌吃苹果',
+                  '国王非常讨厌吃苹果']
+    train_label = ['正面', '正面', '负面', '负面']
     print('train data\n',
-          pd.DataFrame({'data': train_dataset[0],
-                        'label': train_dataset[1]},
+          pd.DataFrame({'data': train_data,
+                        'label': train_label},
                        columns=['data', 'label']))
     test_data = ['涛哥喜欢吃苹果',
                  '涛哥讨厌吃苹果',
                  '涛哥非常喜欢吃苹果',
                  '涛哥非常讨厌吃苹果']
     test_label = ['正面', '负面', '正面', '负面']
-
+    # 创建模型
     model = SentimentAnalysis(vocab_exist=False,
                               vocab_save=True,
                               vocab_path=os.getcwd() + '/vocab_word2vec.model',
                               classify_exist=False,
                               classify_save=True,
                               classify_path=os.getcwd() + '/classify.model')
-    model.get_vocab(texts=train_dataset[0],
+    # 获取词向量模型
+    model.get_vocab(texts=train_data,
                     sg=0,
                     size=5,
                     window=5,
                     min_count=1)
-    model.train(texts=train_dataset[0],
-                label=train_dataset[1],
+    # 进行机器学习
+    model.train(texts=train_data,
+                label=train_label,
                 model_name='SVM')
+    # 进行预测
     result = model.fit(texts=test_data)
+    # 计算准确率
     print('score:', np.sum(result == np.array(test_label)) / len(result))
     result = pd.DataFrame({'data': test_data,
                            'label': test_label,
