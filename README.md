@@ -67,6 +67,7 @@ model.train(texts=train_data,
 
 # 进行预测
 result = model.predict(texts=test_data)
+
 # 计算准确率
 print('score:', np.sum(result == np.array(test_label)) / len(result))
 
