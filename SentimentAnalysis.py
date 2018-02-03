@@ -125,6 +125,7 @@ if __name__ == '__main__':
 
     # 进行预测
     result = model.predict(texts=test_data)
+
     # 计算准确率
     print('score:', np.sum(result == np.array(test_label)) / len(result))
     result = pd.DataFrame({'data': test_data,
