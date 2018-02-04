@@ -44,7 +44,7 @@ test_data = ['涛哥喜欢吃苹果',
 test_label = ['正面', '负面', '正面', '负面']
 
 # 创建模型
-model = SentimentAnalysis(model_name='SVM')
+model = SentimentAnalysis()
 # 建模获取词向量词包
 model.creat_vocab(texts=train_data,
                   sg=0,

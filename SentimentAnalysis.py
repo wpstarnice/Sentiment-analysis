@@ -105,7 +105,7 @@ if __name__ == '__main__':
                  '涛哥非常讨厌吃苹果']
     test_label = ['正面', '负面', '正面', '负面']
     # 创建模型
-    model = SentimentAnalysis(model_name='SVM')
+    model = SentimentAnalysis()
     # 建模获取词向量词包
     model.creat_vocab(texts=train_data,
                       sg=0,
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     # 进行机器学习
     model.train(texts=train_data,
                 label=train_label,
-                model_name='SVM',
+                model_name='Logistic',
                 model_savepath=os.getcwd() + '/classify.model')
 
     # 导入机器学习模型
