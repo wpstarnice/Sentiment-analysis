@@ -122,3 +122,8 @@ print('test\n', result)
 keras_log_plot(model.train_log)
 
 ```
+![SVM](https://github.com/renjunxiang/Sentiment-analysis/blob/master/picture/SVM.png)
+![Conv1D](https://github.com/renjunxiang/Sentiment-analysis/blob/master/picture/Conv1D.png)
+
+
+
