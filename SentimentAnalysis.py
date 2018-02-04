@@ -196,8 +196,10 @@ if __name__ == '__main__':
                  '涛哥非常喜欢吃苹果',
                  '涛哥非常讨厌吃苹果']
     test_label = ['正面', '负面', '正面', '负面']
+
     # 创建模型
     model = SentimentAnalysis()
+
     # 建模获取词向量词包
     model.creat_vocab(texts=train_data,
                       sg=0,
@@ -223,6 +225,8 @@ if __name__ == '__main__':
     result_prob = model.predict_prob(texts=test_data)
     result_prob = pd.DataFrame(result_prob, columns=model.label)
     result_prob['predict'] = result_prob.idxmax(axis=1)
+    result_prob['data'] = test_data
+    result_prob=result_prob[['data'] + list(model.label) + ['predict']]
     print('prob:\n', result_prob)
 
     # 进行预测:分类
@@ -235,31 +239,32 @@ if __name__ == '__main__':
     print('test\n', result)
     ###################################################################################
     # 进行深度学习
-    # model.train(texts=train_data,
-    #             label=train_label,
-    #             model_name='Conv1D',
-    #             batch_size=100,
-    #             epochs=2,
-    #             verbose=1,
-    #             maxlen=None,
-    #             model_savepath=os.getcwd() + '/classify.h5')
-    #
+    model.train(texts=train_data,
+                label=train_label,
+                model_name='Conv1D',
+                batch_size=100,
+                epochs=2,
+                verbose=1,
+                maxlen=None,
+                model_savepath=os.getcwd() + '/classify.h5')
+
     # 导入深度学习模型
     # model.load_model(model_loadpath=os.getcwd() + '/classify.h5')
 
     # 进行预测:概率
-    # result_prob=model.predict_prob(texts=test_data)
-    # result_prob = pd.DataFrame(result_prob, columns=model.label)
-    # result_prob['predict'] = result_prob.idxmax(axis=1)
-    # print(result_prob)
-    # # 进行预测:分类
-    # result = model.predict(texts=test_data)
-    # print(result)
-    # print('score:', np.sum(result == np.array(test_label)) / len(result))
-    # result = pd.DataFrame({'data': test_data,
-    #                        'label': test_label,
-    #                        'predict': result},
-    #                       columns=['data', 'label', 'predict'])
-    # print('test\n', result)
+    result_prob=model.predict_prob(texts=test_data)
+    result_prob = pd.DataFrame(result_prob, columns=model.label)
+    result_prob['predict'] = result_prob.idxmax(axis=1)
+    print(result_prob)
 
-    # keras_log_plot(model.train_log)
+    # 进行预测:分类
+    result = model.predict(texts=test_data)
+    print(result)
+    print('score:', np.sum(result == np.array(test_label)) / len(result))
+    result = pd.DataFrame({'data': test_data,
+                           'label': test_label,
+                           'predict': result},
+                          columns=['data', 'label', 'predict'])
+    print('test\n', result)
+
+    keras_log_plot(model.train_log)

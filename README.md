@@ -22,10 +22,13 @@ keras=2.1.1<br>
 ***PS：该项目在上一个项目Text-Classification基础上封装而成~目前公司情感分析借鉴这个项目，有很多不足，欢迎萌新、大佬多多指导！***
 
 ## 用法简介 SentimentAnalysis
-该模块包含：
-1.打情感分析标签，用于在缺乏标签的时候利用BAT三家的接口创建训练集，5000条文档共耗时约45分钟；
-2.通过gensim模块创建词向量词包
-3.通过scikit-learn进行机器学习并预测
+该模块包含：<br>
+1.借助第三方平台，打情感分析标签。用于在缺乏标签的时候利用BAT三家的接口创建训练集，5000条文档共耗时约45分钟；<br>
+2.通过gensim模块创建词向量词包<br>
+3.通过scikit-learn进行机器学习并预测<br>
+4.通过keras进行深度学习并预测<br>
+
+其他说明：在训练集很小的情况下，sklearn的概率输出predict_prob会不准。目前发现，SVM会出现所有标签概率一样，暂时没看源码，猜测是离超平面过近不计算概率，predict不会出现这个情况。
 
 ``` python
 from SentimentAnalysis import SentimentAnalysis
@@ -36,7 +39,10 @@ train_data = ['国王喜欢吃苹果',
               '国王讨厌吃苹果',
               '国王非常讨厌吃苹果']
 train_label = ['正面', '正面', '负面', '负面']
-
+# print('train data\n',
+#       pd.DataFrame({'data': train_data,
+#                     'label': train_label},
+#                    columns=['data', 'label']))
 test_data = ['涛哥喜欢吃苹果',
              '涛哥讨厌吃苹果',
              '涛哥非常喜欢吃苹果',
@@ -45,6 +51,7 @@ test_label = ['正面', '负面', '正面', '负面']
 
 # 创建模型
 model = SentimentAnalysis()
+
 # 建模获取词向量词包
 model.creat_vocab(texts=train_data,
                   sg=0,
@@ -56,6 +63,7 @@ model.creat_vocab(texts=train_data,
 # 导入词向量词包
 # model.load_vocab_word2vec(vocab_loadpath=os.getcwd() + '/vocab_word2vec.model')
 
+###################################################################################
 # 进行机器学习
 model.train(texts=train_data,
             label=train_label,
@@ -63,13 +71,54 @@ model.train(texts=train_data,
             model_savepath=os.getcwd() + '/classify.model')
 
 # 导入机器学习模型
-# model.load_sklearn_model(model_loadpath=os.getcwd() + '/classify.model')
+# model.load_model(model_loadpath=os.getcwd() + '/classify.model')
 
-# 进行预测
+# 进行预测:概率
+result_prob = model.predict_prob(texts=test_data)
+result_prob = pd.DataFrame(result_prob, columns=model.label)
+result_prob['predict'] = result_prob.idxmax(axis=1)
+result_prob['data'] = test_data
+result_prob = result_prob[['data'] + list(model.label) + ['predict']]
+print('prob:\n', result_prob)
+
+# 进行预测:分类
 result = model.predict(texts=test_data)
-
-# 计算准确率
 print('score:', np.sum(result == np.array(test_label)) / len(result))
+result = pd.DataFrame({'data': test_data,
+                       'label': test_label,
+                       'predict': result},
+                      columns=['data', 'label', 'predict'])
+print('test\n', result)
+###################################################################################
+# 进行深度学习
+model.train(texts=train_data,
+            label=train_label,
+            model_name='Conv1D',
+            batch_size=100,
+            epochs=2,
+            verbose=1,
+            maxlen=None,
+            model_savepath=os.getcwd() + '/classify.h5')
 
+# 导入深度学习模型
+# model.load_model(model_loadpath=os.getcwd() + '/classify.h5')
+
+# 进行预测:概率
+result_prob = model.predict_prob(texts=test_data)
+result_prob = pd.DataFrame(result_prob, columns=model.label)
+result_prob['predict'] = result_prob.idxmax(axis=1)
+print(result_prob)
+
+# 进行预测:分类
+result = model.predict(texts=test_data)
+print(result)
+print('score:', np.sum(result == np.array(test_label)) / len(result))
+result = pd.DataFrame({'data': test_data,
+                       'label': test_label,
+                       'predict': result},
+                      columns=['data', 'label', 'predict'])
+print('test\n', result)
+
+keras_log_plot(model.train_log)
 
 ```
