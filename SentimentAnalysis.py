@@ -13,8 +13,8 @@ jieba.setLogLevel('WARN')
 
 
 class SentimentAnalysis():
-    def __init__(self, model_name='SVM'):
-        self.model_name = model_name
+    def __init__(self):
+        pass
 
     # def creat_label(self, texts):
     #     results_dataframe = bat.creat_label(texts)
@@ -53,22 +53,25 @@ class SentimentAnalysis():
         # sklearn模型，词向量计算均值
         if model_name in ['SVM', 'KNN', 'Logistic']:
             data = [sum(i) / len(i) for i in data]
-        # 配置sklearn模型参数
-        if model_name == 'SVM':
-            if sklearn_param == {}:
-                sklearn_param = sklearn_config.SVC
-        elif model_name == 'KNN':
-            if sklearn_param == {}:
-                sklearn_param = sklearn_config.KNN
-        elif model_name == 'Logistic':
-            if sklearn_param == {}:
-                sklearn_param = sklearn_config.Logistic
-        # 返回训练模型
-        self.model = sklearn_supervised(data=data,
-                                        label=label,
-                                        model_savepath=model_savepath,
-                                        model_name=model_name,
-                                        **sklearn_param)
+            # 配置sklearn模型参数
+            if model_name == 'SVM':
+                if sklearn_param == {}:
+                    sklearn_param = sklearn_config.SVC
+            elif model_name == 'KNN':
+                if sklearn_param == {}:
+                    sklearn_param = sklearn_config.KNN
+            elif model_name == 'Logistic':
+                if sklearn_param == {}:
+                    sklearn_param = sklearn_config.Logistic
+            # 返回训练模型
+            self.model = sklearn_supervised(data=data,
+                                            label=label,
+                                            model_savepath=model_savepath,
+                                            model_name=model_name,
+                                            **sklearn_param)
+        #keras神经网络模型，
+        elif model_name in ['Conv1D','LSTM','Conv1D_LSTM','neural_bulit']:
+            pass
 
     def load_sklearn_model(self,
                            model_loadpath=os.getcwd() + '/classify.model'):
