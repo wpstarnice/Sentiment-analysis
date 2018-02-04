@@ -18,7 +18,6 @@ def sklearn_supervised(data=None,
     :param return: 训练好的模型
     '''
 
-    model_name = model_name
     if model_name == 'KNN':
         # 调用KNN,近邻=5
         model = KNeighborsClassifier(**sklearn_param)
@@ -32,5 +31,6 @@ def sklearn_supervised(data=None,
 
     if model_savepath != None:
         joblib.dump(model, model_savepath)  # 保存模型
+
 
     return model

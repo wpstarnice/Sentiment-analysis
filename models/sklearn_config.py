@@ -4,7 +4,7 @@
 
 SVC = {'kernel': 'linear',  # 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed'
        'C': 1.0,
-       'probability': False}
+       'probability': True}
 
 KNN = {'n_neighbors': 3}  # Number of neighbors to use
 
